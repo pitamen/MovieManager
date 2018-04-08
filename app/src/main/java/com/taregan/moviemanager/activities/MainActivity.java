@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity
         setNavigationItemSelected();
 
         showFragment(NowPlayingFragment.class);
+
+        getSupportActionBar().setTitle("Now Playing");
 
     }
 
@@ -129,10 +132,12 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_nowPlying) {
             fragment = NowPlayingFragment.class;
+            getSupportActionBar().setTitle("Now Playing Movies");
             showFragment(fragment);
 
         } else if (id == R.id.nav_upComing) {
             fragment = UpComingMoviesFragment.class;
+            getSupportActionBar().setTitle("Upcoming Movies");
             showFragment(fragment);
 
         } else if (id == R.id.nav_share) {

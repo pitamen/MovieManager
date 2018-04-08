@@ -4,6 +4,13 @@
     android:layout_height="match_parent"
     tools:context="com.taregan.moviemanager.fragments.NowPlayingFragment">
 
+    <ProgressBar
+        android:id="@+id/pb_nowPlaying"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:visibility="invisible"
+        android:layout_height="wrap_content" />
+
     <!-- TODO: Update blank fragment layout -->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvMovies"

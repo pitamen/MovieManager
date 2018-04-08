@@ -1,6 +1,7 @@
 package com.taregan.moviemanager.fragments;
 
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,10 +9,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.taregan.moviemanager.R;
 import com.taregan.moviemanager.adapters.MovieRecyclerViewAdapter;
+import com.taregan.moviemanager.constants.APIConstants;
 import com.taregan.moviemanager.models.Movie;
+import com.taregan.moviemanager.utils.ApiUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +34,8 @@ public class UpComingMoviesFragment extends Fragment {
 
     @BindView(R.id.rvUpcoming)
     RecyclerView rvUpcoming;
+    @BindView(R.id.pb_upcoming)
+    ProgressBar progressBarUpcoming;
 
     List<Movie> movies;
 
@@ -48,22 +58,59 @@ public class UpComingMoviesFragment extends Fragment {
         rvUpcoming.setHasFixedSize(true);
         rvUpcoming.setLayoutManager(llm);
 
-        MovieRecyclerViewAdapter adapter = new MovieRecyclerViewAdapter(this.getContext(),movies);
-
-        rvUpcoming.setAdapter(adapter);
-
         return rootView;
     }
 
     private void initializeData() {
 
-        movies = new ArrayList<>();
-        movies.add(new Movie("277834", "Risngs", "Julia (Matilda Lutz) becomes worried about her boyfriend, Holt (Alex Roe) when he explores the dark urban legend of a mysterious videotape said to kill the watcher seven days after viewing. She sacrifices herself to save her boyfriend and in doing so makes a horrifying discovery: there is a \\\"movie within the movie\\\" that no one has ever seen before.", 0f, 0, "/uwNNLJULvTQfgc3PBZAY92EOJQO.jpg", "/91WPDonXsxRzi7AcfedKM3p3NFU.jpg"));
-        movies.add(new Movie("121856", "The Great Wall", "The story of an elite force making a last stand for humanity on the world’s most iconic structure.", 0f, 0, "/hm0Z5tpRlSzPO97U5e2Q32Y0Xrb.jpg", "/yESCAoZkaxZ2AMiHojl9jYYd9zD.jpg"));
-        movies.add(new Movie("330459", "Patriots Day", "An account of Boston Police Commissioner Ed Davis's actions in the events leading up to the 2013 Boston Marathon bombing and the aftermath, which includes the city-wide manhunt to find the terrorists behind it.", 0f, 0, "/gd4SDPZIdVRAxUolQ9ZCNXTkQUq.jpg", "/tiBL4PeaCPKGBz3qO4dJP2KzKop.jpg"));
-        movies.add(new Movie("283366", "T2 Trainspotting", "First there was an opportunity......then there was a betrayal. Twenty years have gone by. Much has changed but just as much remains the same. ", 0f, 0, "/A84pxL5z86KbV9u8GAK2mVOoXK.jpg", "/dxJynNxoG6jRttYPoXOGx7OWJvq.jpg"));
-
+        RequestMovieData requestMovieData = new RequestMovieData();
+        requestMovieData.execute();
 
     }
 
+    private class RequestMovieData extends AsyncTask<Void,Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBarUpcoming.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+
+            //request data from api
+            return ApiUtils.getData(APIConstants.UPCOMING_MOVIE_URL);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            movies = new ArrayList<>();
+
+            if(s.length()!=0){
+                try{
+                    JSONObject jsonObject = new JSONObject(s);
+                    JSONArray jsonArray = jsonObject.getJSONArray("results");
+                    for(int i=0;i<jsonArray.length();i++) {
+
+                        JSONObject singleMovie = jsonArray.getJSONObject(i);
+                        String id = singleMovie.getString("id");
+                        String title = singleMovie.getString("title");
+                        String overView = singleMovie.getString("overview");
+                        float voteAverage = singleMovie.getLong("vote_average");
+                        float voteCount = singleMovie.getLong("vote_count");
+                        String posterPath = singleMovie.getString("poster_path");
+                        String backdroppath = singleMovie.getString("backdrop_path");
+                        movies.add(new Movie(id, title, overView, voteAverage, voteCount, posterPath, backdroppath));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MovieRecyclerViewAdapter adapter = new MovieRecyclerViewAdapter(getContext(), movies);
+                rvUpcoming.setAdapter(adapter);
+            }
+            progressBarUpcoming.setVisibility(View.GONE);
+        }
+    }
 }

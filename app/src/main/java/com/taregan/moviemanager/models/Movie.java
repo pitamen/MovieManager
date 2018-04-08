@@ -1,5 +1,7 @@
 package com.taregan.moviemanager.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 /**
@@ -8,12 +10,22 @@ import java.io.Serializable;
 
 public class Movie implements Serializable {
 
-    String id;
-    String title;
-    String overview;
-    float voteAverage;
-    float voteCount;
+    @SerializedName("id")
+    private String id;
+
+    private String title;
+    private String overview;
+
+    @SerializedName("vote_average")
+    private float voteAverage;
+
+    @SerializedName("vote_count")
+    private float voteCount;
+
+    @SerializedName("poster_path")
     String posterPath;
+
+    @SerializedName("backdrop_path")
     String backdropPath;
 
 
